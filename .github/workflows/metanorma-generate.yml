@@ -1,0 +1,50 @@
+name: Metanorma generate and deploy
+
+on:
+  workflow_call:
+    inputs:
+      submodules:
+        description: 'Whether to checkout submodules'
+        type: boolean
+        default: false
+      container-image:
+        description: 'Docker image for Metanorma'
+        type: string
+        default: 'metanorma/metanorma:latest'
+      deploy-branch:
+        description: 'Branch to deploy from'
+        type: string
+        default: 'main'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ inputs.container-image }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: ${{ inputs.submodules }}
+
+      - uses: actions-mn/cache@v1
+
+      - uses: actions-mn/build-and-publish@main
+        with:
+          agree-to-terms: true
+
+  deploy:
+    if: github.ref == format('refs/heads/{0}', inputs.deploy-branch)
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

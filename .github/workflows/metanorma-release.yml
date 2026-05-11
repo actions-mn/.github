@@ -1,0 +1,49 @@
+name: Metanorma release
+
+on:
+  workflow_call:
+    inputs:
+      submodules:
+        description: 'Whether to checkout submodules'
+        type: boolean
+        default: false
+      default-visibility:
+        description: 'Default visibility when document not in manifest (public or private)'
+        type: string
+        default: 'public'
+      include-pattern:
+        description: 'Glob pattern to filter documents for release'
+        type: string
+        default: '*'
+      force:
+        description: 'Force release even if unchanged'
+        type: boolean
+        default: false
+    secrets:
+      token:
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    container: docker://metanorma/metanorma
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: ${{ inputs.submodules }}
+
+      - uses: actions-mn/site-gen@v1
+        with:
+          agree-to-terms: 'true'
+          install-fonts: 'true'
+          continue-without-fonts: 'true'
+
+      - uses: actions-mn/release@v1
+        with:
+          token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+          default-visibility: ${{ inputs.default-visibility }}
+          include-pattern: ${{ inputs.include-pattern }}
+          force: ${{ inputs.force }}
