@@ -41,7 +41,7 @@ jobs:
           install-fonts: 'true'
           continue-without-fonts: 'true'
 
-      - uses: actions-mn/release@v1
+      - uses: actions-mn/release@main
         with:
           token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
           default-visibility: ${{ inputs.default-visibility }}
