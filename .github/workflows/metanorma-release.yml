@@ -19,6 +19,10 @@ on:
         description: 'Force release even if unchanged'
         type: boolean
         default: false
+      force-replace:
+        description: 'Comma-separated doc IDs or glob patterns to force-replace (deletes existing published release and recreates)'
+        type: string
+        default: ''
     secrets:
       token:
         required: false
@@ -47,3 +51,4 @@ jobs:
           default-visibility: ${{ inputs.default-visibility }}
           include-pattern: ${{ inputs.include-pattern }}
           force: ${{ inputs.force }}
+          force-replace: ${{ inputs.force-replace }}
